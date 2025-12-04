@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>FitCheck - Web3 Style Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            position: relative;
+            z-index: 10;
+            padding-top: 4rem;
+            padding-bottom: 2rem;
+        }
+
+        /* Animated background */
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .orb1 {
+            top: 0;
+            left: 25%;
+            width: 20rem;
+            height: 20rem;
+            background: #06b6d4;
+            animation-delay: 0s;
+        }
+
+        .orb2 {
+            top: 33%;
+            right: 25%;
+            width: 20rem;
+            height: 20rem;
+            background: #a855f7;
+            animation-delay: 2s;
+        }
+
+        .orb3 {
+            bottom: 0;
+            left: 50%;
+            width: 20rem;
+            height: 20rem;
+            background: #ec4899;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(10px, -10px); }
+            50% { transform: translate(-10px, 10px); }
+            75% { transform: translate(-10px, -10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            color: #9ca3af;
+            font-size: 1.125rem;
+            max-width: 42rem;
+            margin: 0 auto;
+        }
+
+        .sparkle {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1));
+            pointer-events: none;
+        }
+
+        .card-content {
+            position: relative;
+            padding: 1.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            font-size: 1rem;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(6, 182, 212, 0.5);
+            color: #06b6d4;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(6, 182, 212, 0.2);
+        }
+
+        .btn-upload {
+            width: 100%;
+            height: 8rem;
+            background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.3));
+            border: 1px solid rgba(6, 182, 212, 0.5);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-upload:active {
+            background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.4), rgba(6, 182, 212, 0.5));
+        }
+
+        /* Upload Section */
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 24rem;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            border: 2px solid rgba(6, 182, 212, 0.5);
+        }
+
+        .preview-container {
+            position: relative;
+        }
+
+        .btn-clear {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: #ef4444;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Color Palette */
+        .palette-grid {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .palette-item {
+            flex: 1;
+            height: 4rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .color-box {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 0.75rem;
+            background: #1f2937;
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+            transition: width 0.3s;
+            position: relative;
+        }
+
+        .progress-glow {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+            filter: blur(8px);
+            opacity: 0.5;
+        }
+
+        /* Stars */
+        .stars {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+        }
+
+        .star {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .star-filled {
+            fill: #facc15;
+            color: #facc15;
+        }
+
+        .star-empty {
+            fill: none;
+            color: #4b5563;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-gradient {
+            background: linear-gradient(to right, #06b6d4, #a855f7);
+            color: white;
+        }
+
+        .badge-outline {
+            border: 1px solid rgba(6, 182, 212, 0.5);
+            color: #06b6d4;
+        }
+
+        /* NFT Preview */
+        .nft-preview {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .nft-image-wrapper {
+            position: relative;
+            padding: 0.25rem;
+            background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+            border-radius: 0.5rem;
+            animation: gradient-rotate 3s linear infinite;
+        }
+
+        @keyframes gradient-rotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .nft-image {
+            width: 100%;
+            display: block;
+            border-radius: 0.375rem;
+        }
+
+        .nft-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.5), transparent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid;
+        }
+
+        /* Loader */
+        .spinner {
+            display: inline-block;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Utility Classes */
+        .hidden { display: none; }
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .w-full { width: 100%; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .font-bold { font-weight: bold; }
+        .text-gray-400 { color: #9ca3af; }
+        .text-gray-500 { color: #6b7280; }
+        .capitalize { text-transform: capitalize; }
+
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        @media (min-width: 768px) {
+            .feature-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .container {
+                padding-top: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span class="sparkle">✨</span>
+                FitCheck
+                <span class="sparkle">✨</span>
+            </h1>
+            <p>Advanced color analysis meets Web3. Upload your fit, get rated, and mint your style as an NFT.</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="uploadSection">
+            <div class="card">
+                <div class="card-gradient"></div>
+                <div class="card-content">
+                    <div class="text-center mb-4">
+                        <h2 style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                            Upload Your Fit
+                        </h2>
+                        <p class="text-gray-400 text-sm mt-2">Capture or upload a photo for instant style analysis</p>
+                    </div>
+
+                    <div id="uploadButtons" class="upload-grid">
+                        <button class="btn btn-upload" onclick="triggerCamera()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            <span style="font-weight: 600;">Take Photo</span>
+                        </button>
+
+                        <button class="btn btn-upload" onclick="triggerUpload()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <span style="font-weight: 600;">Upload Image</span>
+                        </button>
+                    </div>
+
+                    <div id="previewSection" class="hidden">
+                        <div class="preview-container">
+                            <img id="previewImage" class="preview-image" alt="Preview">
+                            <button class="btn-clear" onclick="clearImage()">✕</button>
+                        </div>
+                    </div>
+
+                    <input type="file" id="cameraInput" accept="image/*,image/heic,image/heif" capture="environment" style="display: none;" onchange="handleFileSelect(event)">
+                    <input type="file" id="fileInput" accept="image/*,image/heic,image/heif" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+            </div>
+
+            <div id="analyzeButtonSection" class="hidden text-center mt-4">
+                <button class="btn btn-primary" onclick="analyzeFit()" style="padding: 1rem 3rem; font-size: 1.125rem;">
+                    <span id="analyzeButtonText">
+                        <span class="sparkle" style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;">✨</span>
+                        Analyze Fit
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <div class="results-grid">
+                <!-- Left Column -->
+                <div>
+                    <!-- Color Analysis Card -->
+                    <div class="card">
+                        <div class="card-gradient"></div>
+                        <div class="card-content">
+                            <h3 style="font-size: 1.25rem; font-weight: bold; background: linear-gradient(to right, #06b6d4, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1.5rem;">
+                                Color Analysis
+                            </h3>
+
+                            <div id="colorAnalysisContent"></div>
+
+                            <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 1rem;">
+                                <div class="text-sm text-gray-400 mb-2">Complete Palette</div>
+                                <div id="completePalette" class="palette-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Color Metrics Card -->
+                    <div class="card" style="margin-top: 1.5rem;">
+                        <div class="card-gradient"></div>
+                        <div class="card-content">
+                            <h3 style="font-size: 1.25rem; font-weight: bold; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1.5rem;">
+                                Color Metrics
+                            </h3>
+
+                            <div id="colorMetricsContent"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- Style Rating Card -->
+                    <div class="card">
+                        <div class="card-gradient"></div>
+                        <div class="card-content">
+                            <div class="text-center mb-4">
+                                <h3 style="font-size: 1.25rem; font-weight: bold; background: linear-gradient(to right, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                    Style Rating
+                                </h3>
+
+                                <div style="margin: 1.5rem 0;">
+                                    <div id="ratingNumber" style="font-size: 3.75rem; font-weight: bold; display: inline-block;"></div>
+                                    <span class="text-gray-400" style="font-size: 1.5rem;">/10</span>
+                                </div>
+
+                                <div id="starsContainer" class="stars"></div>
+                            </div>
+
+                            <div id="styleMatchesContent" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);"></div>
+
+                            <div id="suggestionsContent" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);"></div>
+                        </div>
+                    </div>
+
+                    <!-- NFT Preview Card -->
+                    <div class="card" style="margin-top: 1.5rem;">
+                        <div class="card-gradient"></div>
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 style="font-size: 1.25rem; font-weight: bold; background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                    NFT Preview
+                                </h3>
+                                <span class="sparkle">✨</span>
+                            </div>
+
+                            <div class="nft-preview">
+                                <div class="nft-image-wrapper">
+                                    <img id="nftImage" class="nft-image" alt="NFT Preview">
+                                    <div class="nft-overlay">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span id="nftRatingBadge" class="badge badge-gradient"></span>
+                                            <span id="nftHarmonyBadge" class="badge badge-gradient capitalize"></span>
+                                        </div>
+                                        <div id="nftPalette" class="flex gap-1"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="nftStatsGrid" class="stats-grid"></div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem;">
+                                <button class="btn btn-outline" onclick="downloadNFT()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Download
+                                </button>
+                                <button class="btn btn-primary" onclick="mintNFT()" id="mintButton">
+                                    <span class="sparkle" style="width: 1rem; height: 1rem;">✨</span>
+                                    Mint NFT
+                                </button>
+                            </div>
+
+                            <p class="text-xs text-center text-gray-500 mt-4">
+                                NFT will be minted with your style analysis metadata on Base blockchain
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-outline" onclick="analyzeAnother()">
+                    Analyze Another Fit
+                </button>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-grid">
+            <div class="feature-card" style="background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.1), rgba(6, 182, 212, 0.15)); border-color: rgba(6, 182, 212, 0.3);">
+                <div style="font-size: 2rem; font-weight: bold; color: #06b6d4; margin-bottom: 0.5rem;">Color Theory</div>
+                <div class="text-gray-400 text-sm">
+                    Advanced analysis of hues, saturation, contrast, and harmony
+                </div>
+            </div>
+
+            <div class="feature-card" style="background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.15)); border-color: rgba(168, 85, 247, 0.3);">
+                <div style="font-size: 2rem; font-weight: bold; color: #a855f7; margin-bottom: 0.5rem;">Style AI</div>
+                <div class="text-gray-400 text-sm">
+                    Match your fit with iconic personas and get personalized ratings
+                </div>
+            </div>
+
+            <div class="feature-card" style="background: linear-gradient(to bottom right, rgba(236, 72, 153, 0.1), rgba(236, 72, 153, 0.15)); border-color: rgba(236, 72, 153, 0.3);">
+                <div style="font-size: 2rem; font-weight: bold; color: #ec4899; margin-bottom: 0.5rem;">NFT Minting</div>
+                <div class="text-gray-400 text-sm">
+                    Mint your analyzed fit as a unique NFT on Base blockchain
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let selectedFile = null;
+        let analysisResult = null;
+
+        // Style Personas Data
+        const STYLE_PERSONAS = [
+            {
+                name: 'Thomas Shelby',
+                description: 'Sharp, calculated, and commanding. The modern gangster aesthetic.',
+                signature: 'Three-piece suits, muted tones, high contrast',
+                colorProfile: ['#2C3E50', '#34495E', '#7F8C8D', '#95A5A6', '#BDC3C7']
+            },
+            {
+                name: 'Tony Stark',
+                description: 'Bold, innovative, and unapologetically confident.',
+                signature: 'Modern tailoring, rich colors, tech-forward accessories',
+                colorProfile: ['#C0392B', '#E74C3C', '#2C3E50', '#34495E', '#7F8C8D']
+            },
+            {
+                name: 'James Bond',
+                description: 'Timeless elegance meets deadly precision.',
+                signature: 'Classic tailoring, navy blues, crisp whites, refined details',
+                colorProfile: ['#1C2833', '#2C3E50', '#FFFFFF', '#34495E', '#7F8C8D']
+            },
+            {
+                name: 'John Wick',
+                description: 'Sleek, lethal, and effortlessly stylish.',
+                signature: 'All-black everything, minimalist cuts, functional luxury',
+                colorProfile: ['#000000', '#1C1C1C', '#2C2C2C', '#3D3D3D', '#4F4F4F']
+            },
+            {
+                name: 'Ryan Gosling (Drive)',
+                description: 'Cool, mysterious, and effortlessly retro.',
+                signature: 'Satin jackets, muted palettes, 80s-inspired minimalism',
+                colorProfile: ['#F39C12', '#E67E22', '#FFFFFF', '#2C3E50', '#95A5A6']
+            },
+            {
+                name: 'Don Draper',
+                description: 'Classic American masculinity with impeccable taste.',
+                signature: 'Mad Men era suits, sophisticated neutrals, timeless cuts',
+                colorProfile: ['#2C3E50', '#34495E', '#8E44AD', '#FFFFFF', '#7F8C8D']
+            },
+            {
+                name: 'Steve Jobs',
+                description: 'Minimalist genius, revolutionary simplicity.',
+                signature: 'Black turtleneck, blue jeans, New Balance sneakers',
+                colorProfile: ['#000000', '#2C3E50', '#3498DB', '#FFFFFF', '#95A5A6']
+            },
+            {
+                name: 'The Dude (Big Lebowski)',
+                description: 'Laid-back, unconventional, effortlessly cool.',
+                signature: 'Bowling shirts, cardigans, comfortable chaos',
+                colorProfile: ['#8B4513', '#D2691E', '#F4A460', '#FFFFFF', '#708090']
+            }
+        ];
+
+        // UI Functions
+        function triggerCamera() {
+            document.getElementById('cameraInput').click();
+        }
+
+        function triggerUpload() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('uploadButtons').classList.add('hidden');
+                    document.getElementById('previewSection').classList.remove('hidden');
+                    document.getElementById('analyzeButtonSection').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImage() {
+            selectedFile = null;
+            document.getElementById('uploadButtons').classList.remove('hidden');
+            document.getElementById('previewSection').classList.add('hidden');
+            document.getElementById('analyzeButtonSection').classList.add('hidden');
+            document.getElementById('cameraInput').value = '';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function analyzeAnother() {
+            clearImage();
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('uploadSection').classList.remove('hidden');
+            analysisResult = null;
+        }
+
+        // Color Analysis Functions
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = Math.round(x).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                    case g: h = ((b - r) / d + 2) / 6; break;
+                    case b: h = ((r - g) / d + 4) / 6; break;
+                }
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function getColorName(hsl) {
+            const { h, s, l } = hsl;
+
+            if (s < 10) {
+                if (l < 20) return 'Black';
+                if (l < 40) return 'Dark Gray';
+                if (l < 60) return 'Gray';
+                if (l < 80) return 'Light Gray';
+                return 'White';
+            }
+
+            if (h < 15 || h >= 345) return 'Red';
+            if (h < 45) return 'Orange';
+            if (h < 75) return 'Yellow';
+            if (h < 150) return 'Green';
+            if (h < 200) return 'Cyan';
+            if (h < 260) return 'Blue';
+            if (h < 290) return 'Purple';
+            if (h < 330) return 'Magenta';
+            return 'Pink';
+        }
+
+        function determineUndertone(hue) {
+            if ((hue >= 0 && hue < 60) || (hue >= 300 && hue < 360)) return 'warm';
+            if (hue >= 180 && hue < 300) return 'cool';
+            return 'neutral';
+        }
+
+        function calculateContrast(rgb1, rgb2) {
+            const getLuminance = (rgb) => {
+                const [r, g, b] = [rgb.r, rgb.g, rgb.b].map(val => {
+                    val = val / 255;
+                    return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
+                });
+                return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            };
+
+            const lum1 = getLuminance(rgb1);
+            const lum2 = getLuminance(rgb2);
+            const lighter = Math.max(lum1, lum2);
+            const darker = Math.min(lum1, lum2);
+
+            return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function determineColorHarmony(hues) {
+            if (hues.length < 2) return 'monochrome';
+
+            const sortedHues = [...hues].sort((a, b) => a - b);
+            const differences = [];
+            
+            for (let i = 1; i < sortedHues.length; i++) {
+                differences.push(sortedHues[i] - sortedHues[i - 1]);
+            }
+
+            const maxDiff = Math.max(...differences);
+            const avgDiff = differences.reduce((a, b) => a + b, 0) / differences.length;
+
+            if (maxDiff < 30) return 'monochrome';
+            if (avgDiff < 45) return 'analogous';
+            if (Math.abs(maxDiff - 180) < 30) return 'complementary';
+            if (hues.length >= 3) {
+                const span = sortedHues[sortedHues.length - 1] - sortedHues[0];
+                if (Math.abs(span - 120) < 30) return 'triadic';
+                if (Math.abs(span - 150) < 30) return 'split-complementary';
+            }
+
+            return 'complementary';
+        }
+
+        function getDominantColor(imageData) {
+            const colorCounts = {};
+            
+            for (let i = 0; i < imageData.length; i += 40) {
+                const r = imageData[i];
+                const g = imageData[i + 1];
+                const b = imageData[i + 2];
+                const key = `${Math.floor(r / 10)}-${Math.floor(g / 10)}-${Math.floor(b / 10)}`;
+                
+                if (!colorCounts[key]) {
+                    colorCounts[key] = { rgb: { r, g, b }, count: 0 };
+                }
+                colorCounts[key].count++;
+            }
+
+            let maxCount = 0;
+            let dominantColor = { r: 0, g: 0, b: 0 };
+
+            Object.values(colorCounts).forEach(colorData => {
+                if (colorData.count > maxCount) {
+                    maxCount = colorData.count;
+                    dominantColor = colorData.rgb;
+                }
+            });
+
+            return dominantColor;
+        }
+
+        async function analyzeImageColors(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    const topThird = ctx.getImageData(0, 0, canvas.width, canvas.height / 3);
+                    const middleThird = ctx.getImageData(0, canvas.height / 3, canvas.width, canvas.height / 3);
+                    const bottomThird = ctx.getImageData(0, (2 * canvas.height) / 3, canvas.width, canvas.height / 3);
+
+                    const skinRGB = getDominantColor(topThird.data);
+                    const torsoRGB = getDominantColor(middleThird.data);
+                    const legsRGB = getDominantColor(bottomThird.data);
+
+                    const skinHSL = rgbToHsl(skinRGB.r, skinRGB.g, skinRGB.b);
+                    const torsoHSL = rgbToHsl(torsoRGB.r, torsoRGB.g, torsoRGB.b);
+                    const legsHSL = rgbToHsl(legsRGB.r, legsRGB.g, legsRGB.b);
+
+                    const shoesRGB = { r: legsRGB.r * 0.8, g: legsRGB.g * 0.8, b: legsRGB.b * 0.8 };
+                    const shoesHSL = rgbToHsl(shoesRGB.r, shoesRGB.g, shoesRGB.b);
+
+                    const avgSaturation = [skinHSL, torsoHSL, legsHSL, shoesHSL]
+                        .reduce((sum, hsl) => sum + hsl.s, 0) / 4;
+
+                    const contrastScore = (
+                        calculateContrast(torsoRGB, legsRGB) +
+                        calculateContrast(torsoRGB, shoesRGB) +
+                        calculateContrast(legsRGB, shoesRGB)
+                    ) / 3;
+
+                    const hues = [skinHSL.h, torsoHSL.h, legsHSL.h, shoesHSL.h];
+                    const colorHarmony = determineColorHarmony(hues);
+
+                    const palette = [
+                        rgbToHex(skinRGB.r, skinRGB.g, skinRGB.b),
+                        rgbToHex(torsoRGB.r, torsoRGB.g, torsoRGB.b),
+                        rgbToHex(legsRGB.r, legsRGB.g, legsRGB.b),
+                        rgbToHex(shoesRGB.r, shoesRGB.g, shoesRGB.b)
+                    ];
+
+                    resolve({
+                        skinTone: {
+                            hue: skinHSL.h,
+                            undertone: determineUndertone(skinHSL.h),
+                            hex: rgbToHex(skinRGB.r, skinRGB.g, skinRGB.b)
+                        },
+                        torsoColor: {
+                            rgb: torsoRGB,
+                            hsl: torsoHSL,
+                            hex: rgbToHex(torsoRGB.r, torsoRGB.g, torsoRGB.b),
+                            name: getColorName(torsoHSL)
+                        },
+                        leggingsColor: {
+                            rgb: legsRGB,
+                            hsl: legsHSL,
+                            hex: rgbToHex(legsRGB.r, legsRGB.g, legsRGB.b),
+                            name: getColorName(legsHSL)
+                        },
+                        shoesColor: {
+                            rgb: shoesRGB,
+                            hsl: shoesHSL,
+                            hex: rgbToHex(shoesRGB.r, shoesRGB.g, shoesRGB.b),
+                            name: getColorName(shoesHSL)
+                        },
+                        saturationLevel: Math.round(avgSaturation),
+                        contrastScore: contrastScore,
+                        colorHarmony: colorHarmony,
+                        palette: palette
+                    });
+                };
+
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Style Matching Functions
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+
+        function colorDistance(color1, color2) {
+            return Math.sqrt(
+                Math.pow(color1.r - color2.r, 2) +
+                Math.pow(color1.g - color2.g, 2) +
+                Math.pow(color1.b - color2.b, 2)
+            );
+        }
+
+        function matchStylePersonas(colorAnalysis) {
+            const userColors = colorAnalysis.palette;
+            
+            const matches = STYLE_PERSONAS.map(persona => {
+                let totalSimilarity = 0;
+                const matchedTraits = [];
+
+                userColors.forEach(userColor => {
+                    const userRgb = hexToRgb(userColor);
+                    persona.colorProfile.forEach(personaColor => {
+                        const personaRgb = hexToRgb(personaColor);
+                        const distance = colorDistance(userRgb, personaRgb);
+                        const similarity = Math.max(0, 100 - (distance / 441) * 100);
+                        totalSimilarity += similarity;
+                    });
+                });
+
+                const avgSimilarity = totalSimilarity / (userColors.length * persona.colorProfile.length);
+
+                if (colorAnalysis.contrastScore > 7 && (persona.name === 'Thomas Shelby' || persona.name === 'James Bond')) {
+                    matchedTraits.push('High Contrast');
+                }
+
+                if (colorAnalysis.colorHarmony === 'monochrome' && persona.name === 'John Wick') {
+                    matchedTraits.push('Monochromatic Palette');
+                }
+
+                if (colorAnalysis.saturationLevel < 30 && (persona.name === 'Thomas Shelby' || persona.name === 'John Wick')) {
+                    matchedTraits.push('Muted Tones');
+                }
+
+                if (colorAnalysis.saturationLevel > 60 && persona.name === 'Tony Stark') {
+                    matchedTraits.push('Bold Colors');
+                }
+
+                if (colorAnalysis.colorHarmony === 'complementary' && persona.name === 'Ryan Gosling (Drive)') {
+                    matchedTraits.push('Complementary Colors');
+                }
+
+                return {
+                    persona: persona,
+                    similarity: Math.round(avgSimilarity),
+                    matchedTraits: matchedTraits
+                };
+            });
+
+            return matches.sort((a, b) => b.similarity - a.similarity).slice(0, 3);
+        }
+
+        function calculateStyleRating(colorAnalysis, topMatches) {
+            let rating = 5.0;
+
+            const avgSimilarity = topMatches.reduce((sum, match) => sum + match.similarity, 0) / topMatches.length;
+            rating += (avgSimilarity / 100) * 3;
+
+            if (colorAnalysis.colorHarmony === 'complementary' || colorAnalysis.colorHarmony === 'triadic') {
+                rating += 1.0;
+            } else if (colorAnalysis.colorHarmony === 'analogous') {
+                rating += 0.5;
+            }
+
+            if (colorAnalysis.contrastScore >= 4.5 && colorAnalysis.contrastScore <= 10) {
+                rating += 0.5;
+            }
+
+            if (colorAnalysis.saturationLevel >= 20 && colorAnalysis.saturationLevel <= 70) {
+                rating += 0.5;
+            } else if (colorAnalysis.saturationLevel < 20 || colorAnalysis.saturationLevel > 80) {
+                rating -= 0.3;
+            }
+
+            return Math.min(10, Math.max(1, Number(rating.toFixed(1))));
+        }
+
+        function generateSuggestions(colorAnalysis, rating) {
+            const suggestions = [];
+
+            if (rating < 6) {
+                if (colorAnalysis.contrastScore < 3) {
+                    suggestions.push('Increase contrast between your top and bottom pieces for a more dynamic look');
+                }
+
+                if (colorAnalysis.saturationLevel > 80) {
+                    suggestions.push('Consider toning down the saturation for a more sophisticated appearance');
+                }
+
+                if (colorAnalysis.colorHarmony === 'monochrome') {
+                    suggestions.push('Add an accent color to break up the monochromatic scheme');
+                }
+            }
+
+            if (colorAnalysis.saturationLevel < 20) {
+                suggestions.push('A pop of color could elevate your outfit and add visual interest');
+            }
+
+            if (colorAnalysis.contrastScore > 15) {
+                suggestions.push('The high contrast is bold—consider softening it with neutral tones');
+            }
+
+            if (colorAnalysis.colorHarmony === 'complementary') {
+                suggestions.push('Your complementary color scheme is striking! Well done.');
+            }
+
+            if (rating >= 8) {
+                suggestions.push('Outstanding! Your color coordination is on point.');
+            }
+
+            if (suggestions.length === 0) {
+                suggestions.push('Your outfit has good balance. Consider experimenting with textures or accessories.');
+            }
+
+            return suggestions;
+        }
+
+        // Main Analysis Function
+        async function analyzeFit() {
+            if (!selectedFile) {
+                alert('Please upload an image first');
+                return;
+            }
+
+            const analyzeBtn = document.getElementById('analyzeButtonText');
+            analyzeBtn.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+            try {
+                const colorAnalysis = await analyzeImageColors(selectedFile);
+                const topMatches = matchStylePersonas(colorAnalysis);
+                const styleRating = calculateStyleRating(colorAnalysis, topMatches);
+                const suggestions = generateSuggestions(colorAnalysis, styleRating);
+
+                analysisResult = {
+                    imageUrl: URL.createObjectURL(selectedFile),
+                    colorAnalysis: colorAnalysis,
+                    styleRating: styleRating,
+                    topMatches: topMatches,
+                    suggestions: suggestions,
+                    timestamp: Date.now()
+                };
+
+                displayResults(analysisResult);
+                
+                document.getElementById('uploadSection').classList.add('hidden');
+                document.getElementById('resultsSection').classList.remove('hidden');
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('Failed to analyze image. Please try again.');
+            } finally {
+                analyzeBtn.innerHTML = '<span class="sparkle" style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;">✨</span> Analyze Fit';
+            }
+        }
+
+        function displayResults(result) {
+            // Color Analysis
+            const colorAnalysisContent = document.getElementById('colorAnalysisContent');
+            colorAnalysisContent.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-400">Skin Tone</span>
+                        <span class="text-sm font-bold capitalize" style="color: #06b6d4;">${result.colorAnalysis.skinTone.undertone}</span>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <div class="color-box" style="background-color: ${result.colorAnalysis.skinTone.hex};"></div>
+                        <span class="text-xs text-gray-500">${result.colorAnalysis.skinTone.hex}</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-400">Torso</span>
+                        <span class="text-sm font-bold" style="color: #a855f7;">${result.colorAnalysis.torsoColor.name}</span>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <div class="color-box" style="background-color: ${result.colorAnalysis.torsoColor.hex};"></div>
+                        <span class="text-xs text-gray-500">${result.colorAnalysis.torsoColor.hex}</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-400">Leggings</span>
+                        <span class="text-sm font-bold" style="color: #ec4899;">${result.colorAnalysis.leggingsColor.name}</span>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <div class="color-box" style="background-color: ${result.colorAnalysis.leggingsColor.hex};"></div>
+                        <span class="text-xs text-gray-500">${result.colorAnalysis.leggingsColor.hex}</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-400">Shoes</span>
+                        <span class="text-sm font-bold" style="color: #f97316;">${result.colorAnalysis.shoesColor.name}</span>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <div class="color-box" style="background-color: ${result.colorAnalysis.shoesColor.hex};"></div>
+                        <span class="text-xs text-gray-500">${result.colorAnalysis.shoesColor.hex}</span>
+                    </div>
+                </div>
+            `;
+
+            // Complete Palette
+            const completePalette = document.getElementById('completePalette');
+            completePalette.innerHTML = result.colorAnalysis.palette.map(color => 
+                `<div class="palette-item" style="background-color: ${color};"></div>`
+            ).join('');
+
+            // Color Metrics
+            const saturationLabel = result.colorAnalysis.saturationLevel < 30 ? 'Low' : 
+                                   result.colorAnalysis.saturationLevel < 60 ? 'Medium' : 'High';
+            const contrastLabel = result.colorAnalysis.contrastScore < 3 ? 'Low' :
+                                 result.colorAnalysis.contrastScore < 7 ? 'Good' : 'High';
+
+            const colorMetricsContent = document.getElementById('colorMetricsContent');
+            colorMetricsContent.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-400">Saturation Level</span>
+                        <span class="text-sm font-bold" style="color: #a855f7;">${result.colorAnalysis.saturationLevel}% • ${saturationLabel}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${result.colorAnalysis.saturationLevel}%;">
+                            <div class="progress-glow" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-400">Contrast Score</span>
+                        <span class="text-sm font-bold" style="color: #ec4899;">${result.colorAnalysis.contrastScore.toFixed(1)} • ${contrastLabel}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(result.colorAnalysis.contrastScore / 21) * 100}%;">
+                            <div class="progress-glow" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-400">Color Harmony</span>
+                        <span class="text-sm font-bold capitalize" style="color: #06b6d4;">${result.colorAnalysis.colorHarmony.replace('-', ' ')}</span>
+                    </div>
+                    <div style="margin-top: 0.75rem; padding: 0.75rem; border-radius: 0.5rem; background: linear-gradient(to right, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1)); border: 1px solid rgba(6, 182, 212, 0.3);">
+                        <p class="text-xs" style="color: #d1d5db;">
+                            ${getHarmonyDescription(result.colorAnalysis.colorHarmony)}
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            // Style Rating
+            const ratingColorClass = result.styleRating >= 9 ? 'from-yellow-400 to-orange-400' :
+                                    result.styleRating >= 7 ? 'from-green-400 to-emerald-400' :
+                                    result.styleRating >= 5 ? 'from-blue-400 to-cyan-400' :
+                                    'from-gray-400 to-gray-500';
+            
+            document.getElementById('ratingNumber').style.background = `linear-gradient(to right, ${ratingColorClass.split(' ')[0].replace('from-', '#')}, ${ratingColorClass.split(' ')[1].replace('to-', '#')})`;
+            document.getElementById('ratingNumber').style.webkitBackgroundClip = 'text';
+            document.getElementById('ratingNumber').style.webkitTextFillColor = 'solid';
+            document.getElementById('ratingNumber').textContent = result.styleRating;
+
+            // Stars
+            const starsContainer = document.getElementById('starsContainer');
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                star.setAttribute('class', 'star ' + (i < Math.floor(result.styleRating) ? 'star-filled' : 'star-empty'));
+                star.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                star.setAttribute('viewBox', '0 0 24 24');
+                star.setAttribute('stroke', 'currentColor');
+                star.setAttribute('stroke-width', '2');
+                star.setAttribute('stroke-linecap', 'round');
+                star.setAttribute('stroke-linejoin', 'round');
+                star.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>';
+                starsContainer.appendChild(star);
+            }
+
+            // Style Matches
+            const styleMatchesContent = document.getElementById('styleMatchesContent');
+            styleMatchesContent.innerHTML = `
+                <div class="flex items-center gap-2 mb-4" style="color: #a855f7;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                    <h4 class="font-bold">Top Style Matches</h4>
+                </div>
+
+                ${result.topMatches.map((match, index) => `
+                    <div style="padding: 1rem; border-radius: 0.5rem; background: linear-gradient(to right, rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1)); border: 1px solid rgba(168, 85, 247, 0.3); margin-bottom: 1rem;">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <div class="font-bold" style="color: white;">${match.persona.name}</div>
+                                <div class="text-xs text-gray-400">${match.persona.description}</div>
+                            </div>
+                            <span class="badge badge-gradient">${match.similarity}%</span>
+                        </div>
+
+                        ${match.matchedTraits.length > 0 ? `
+                            <div class="flex flex-wrap gap-1 mb-2">
+                                ${match.matchedTraits.map(trait => `
+                                    <span class="badge badge-outline">${trait}</span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+
+                        <div class="text-xs text-gray-500" style="font-style: italic;">
+                            "${match.persona.signature}"
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+
+            // Suggestions
+            if (result.suggestions.length > 0) {
+                const suggestionsContent = document.getElementById('suggestionsContent');
+                suggestionsContent.innerHTML = `
+                    <h4 class="font-bold mb-3" style="color: #ec4899;">Suggestions</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        ${result.suggestions.map(suggestion => `
+                            <li class="text-sm" style="color: #d1d5db; padding-left: 1rem; border-left: 2px solid rgba(236, 72, 153, 0.5); margin-bottom: 0.5rem;">
+                                ${suggestion}
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            }
+
+            // NFT Preview
+            document.getElementById('nftImage').src = result.imageUrl;
+            document.getElementById('nftRatingBadge').textContent = `Rating: ${result.styleRating}/10`;
+            document.getElementById('nftHarmonyBadge').textContent = result.colorAnalysis.colorHarmony;
+
+            const nftPalette = document.getElementById('nftPalette');
+            nftPalette.innerHTML = result.colorAnalysis.palette.map(color => 
+                `<div style="flex: 1; height: 0.5rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.2); background-color: ${color};"></div>`
+            ).join('');
+
+            const nftStatsGrid = document.getElementById('nftStatsGrid');
+            nftStatsGrid.innerHTML = `
+                <div class="stat-card" style="background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.1), rgba(6, 182, 212, 0.15)); border-color: rgba(6, 182, 212, 0.3);">
+                    <div class="text-gray-400 text-xs">Contrast</div>
+                    <div class="font-bold" style="color: #06b6d4;">${result.colorAnalysis.contrastScore.toFixed(1)}</div>
+                </div>
+                
+                <div class="stat-card" style="background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.1), rgba(168, 85, 247, 0.15)); border-color: rgba(168, 85, 247, 0.3);">
+                    <div class="text-gray-400 text-xs">Saturation</div>
+                    <div class="font-bold" style="color: #a855f7;">${result.colorAnalysis.saturationLevel}%</div>
+                </div>
+                
+                <div class="stat-card" style="background: linear-gradient(to bottom right, rgba(236, 72, 153, 0.1), rgba(236, 72, 153, 0.15)); border-color: rgba(236, 72, 153, 0.3);">
+                    <div class="text-gray-400 text-xs">Top Match</div>
+                    <div class="font-bold text-xs" style="color: #ec4899; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${result.topMatches[0].persona.name}</div>
+                </div>
+                
+                <div class="stat-card" style="background: linear-gradient(to bottom right, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.15)); border-color: rgba(249, 115, 22, 0.3);">
+                    <div class="text-gray-400 text-xs">Similarity</div>
+                    <div class="font-bold" style="color: #f97316;">${result.topMatches[0].similarity}%</div>
+                </div>
+            `;
+        }
+
+        function getHarmonyDescription(harmony) {
+            const descriptions = {
+                'complementary': 'Colors opposite on the color wheel create bold contrast',
+                'analogous': 'Adjacent colors on the wheel create harmonious flow',
+                'triadic': 'Three colors evenly spaced create balanced vibrancy',
+                'monochrome': 'Single color variations create unified sophistication',
+                'split-complementary': 'Base color plus two adjacent to its complement'
+            };
+            return descriptions[harmony] || '';
+        }
+
+        function downloadNFT() {
+            if (!analysisResult) return;
+            const link = document.createElement('a');
+            link.href = analysisResult.imageUrl;
+            link.download = `fitcheck-${Date.now()}.png`;
+            link.click();
+        }
+
+        async function mintNFT() {
+            if (!analysisResult) return;
+
+            const mintButton = document.getElementById('mintButton');
+            mintButton.disabled = true;
+            mintButton.innerHTML = '<span class="spinner"></span> Minting...';
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                alert('NFT Minted Successfully! Your FitCheck NFT has been minted on Base blockchain');
+            } catch (error) {
+                console.error('Minting error:', error);
+                alert('Failed to mint NFT. Please try again.');
+            } finally {
+                mintButton.disabled = false;
+                mintButton.innerHTML = '<span class="sparkle" style="width: 1rem; height: 1rem;">✨</span> Mint NFT';
+            }
+        }
+    </script>
+</body>
+</html>
